@@ -1,0 +1,37 @@
+# GPU passthrough requires the NVIDIA Container Toolkit:
+#   https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html
+#
+# To run without a GPU use the CPU variant instead:
+#   docker compose -f docker-compose.cpu.yml up --build
+#
+# If the container exits with code 137, Docker killed it for exceeding the
+# memory limit. Increase Docker Desktop memory in Settings -> Resources -> Memory.
+# 6 GB is recommended (ResNet50 + LSTM + decoded video frames in RAM).
+#
+# The UI is served by FastAPI itself at http://localhost:8000
+# There is no separate UI container.
+
+services:
+
+  api:
+    build: .
+    container_name: surveillance-api
+    ports:
+      - "8000:8000"
+    command: python -m uvicorn api.main:app --host 0.0.0.0 --port 8000
+    environment:
+      - DEVICE=cuda
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 30s
+    restart: on-failure

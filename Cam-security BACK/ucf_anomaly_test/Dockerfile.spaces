@@ -1,0 +1,29 @@
+FROM python:3.11-slim
+
+# OpenCV runtime dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        libgl1 \
+        libglib2.0-0 \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# requirements.txt uses torch>=2.5.0 (no CUDA pin).
+# On PyPI that resolves to the CPU-only wheel (~230 MB vs ~2.5 GB for CUDA),
+# which is what we want on HuggingFace Spaces free tier.
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+# Force CPU — HuggingFace Spaces free tier has no GPU.
+ENV DEVICE=cpu
+
+COPY startup.sh .
+RUN chmod +x startup.sh
+
+# HuggingFace Spaces exposes exactly one public port: 7860.
+# FastAPI serves both the API and the static UI on this port.
+EXPOSE 7860
+
+CMD ["./startup.sh"]
