@@ -1,0 +1,46 @@
+# ── Fonte de vídeo ────────────────────────────────────────────────────────────
+video_path: "./mercado.mp4"  # deixe vazio para usar câmera ao vivo
+camera_id:  0
+width:       640
+height:      480
+fps:         30
+
+# ── Detecção de objetos (YOLO) ────────────────────────────────────────────────
+ai:
+  yolo_model_path: "yolo11n.pt"
+  yolo_conf: 0.25              # benchmark: +30% detecções vs. 0.35 sem aumentar máximo
+  yolo_classes: [0]            # 0 = pessoa (COCO)
+  device: "cpu"
+  draw_overlays: true
+  imgsz: 640                   # benchmark: +1.4 pessoas/frame vs. imgsz=320 (+27ms)
+  iou: 0.45                    # NMS IoU — reduz caixas sobrepostas (padrão YOLO: 0.7)
+  enable_tracking: true
+  hold_alert_sec: 2.0          # segundos mínimos de alerta após confirmação
+
+# ── Detector de anomalias UCF (ResNet50 + LSTM) ───────────────────────────────
+ucf:
+  checkpoint:  "ucf_anomaly_test/checkpoints/best_model.pt"
+  threshold:   0.5           # score >= threshold → anomalia
+  clip_length: 16            # frames por clipe (deve corresponder ao treinamento)
+  clip_stride: 3             # novo score a cada N frames
+  enabled:     true          # false → desativa UCF sem remover o código
+
+# ── Eventos e alertas ─────────────────────────────────────────────────────────
+events:
+  alert_cooldown_sec:  5     # intervalo mínimo entre alertas sonoros
+  confirm_window:      3     # clipes na janela de confirmação
+  confirm_min_hits:    2     # mínimo de clipes anômalos para confirmar
+
+# ── Armazenamento de evidências ───────────────────────────────────────────────
+storage:
+  root:          "storage"
+  save_frames:   true
+  jpeg_quality:  85
+  max_events:    500         # rotaciona log após N eventos
+
+# ── Gravação de vídeo ─────────────────────────────────────────────────────────
+video:
+  pre_event_seconds:  5
+  post_event_seconds: 15
+  fps:   30
+  codec: "XVID"

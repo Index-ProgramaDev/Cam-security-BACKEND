@@ -1,0 +1,36 @@
+# Ambiente virtual Python
+.venv/
+venv/
+env/
+
+# Cache Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Modelos de IA (grandes demais para git)
+*.pt
+*.pth
+*.onnx
+
+# Evidências e armazenamento
+storage/
+
+# Vídeos de teste
+*.mp4
+*.avi
+*.gif
+
+# Arquivos de log
+*.log
+*.jsonl
+*.jsonl.bak
+
+# IDE e OS
+.vscode/
+.idea/
+*.DS_Store
+Thumbs.db
+
+# Pytest
+.pytest_cache/
