@@ -22,7 +22,7 @@ class StorageManager:
         events/
           2024-01-15_14-32-07_0001/
             frame.jpg
-            event.avi
+            event.mp4
     """
 
     def __init__(self, config: dict):
@@ -40,7 +40,8 @@ class StorageManager:
         self._pre_sec   = float(vid.get("pre_event_seconds", 5))
         self._post_sec  = float(vid.get("post_event_seconds", 15))
         self._vid_fps   = float(vid.get("fps", 30))
-        self._vid_codec = str(vid.get("codec", "XVID"))
+        self._vid_codec = str(vid.get("codec", "mp4v"))
+        self._vid_fmt   = str(vid.get("format", "mp4")).lstrip(".")
 
         self._video_buffer = None
         self._log_lock = threading.Lock()
@@ -50,8 +51,8 @@ class StorageManager:
             with open(self._log_path, encoding="utf-8") as f:
                 self._event_count = sum(1 for _ in f)
 
-        logger.info("StorageManager pronto — raiz=%s  eventos=%d  vídeo=%ds pre + %ds post",
-                    root, self._event_count, int(self._pre_sec), int(self._post_sec))
+        logger.info("StorageManager pronto — raiz=%s  eventos=%d  vídeo=%ds pre + %ds post  formato=%s (%s)",
+                    root, self._event_count, int(self._pre_sec), int(self._post_sec), self._vid_fmt, self._vid_codec)
 
     def set_video_buffer(self, video_buffer) -> None:
         self._video_buffer = video_buffer
@@ -81,7 +82,8 @@ class StorageManager:
                 frame_rel = str(fp.relative_to(self._events_dir.parent))
 
             # Inicia gravação de vídeo via VideoBuffer
-            video_path = event_dir / "event.avi"
+            video_filename = f"event.{self._vid_fmt}"
+            video_path = event_dir / video_filename
             video_rel = None
             if self._video_buffer and event.kind == EventKind.ANOMALY_CONFIRMED:
                 self._video_buffer.start_recording(

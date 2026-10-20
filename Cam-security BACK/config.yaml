@@ -43,4 +43,5 @@ video:
   pre_event_seconds:  5
   post_event_seconds: 15
   fps:   30
-  codec: "XVID"
+  codec: "mp4v"
+  format: "mp4"

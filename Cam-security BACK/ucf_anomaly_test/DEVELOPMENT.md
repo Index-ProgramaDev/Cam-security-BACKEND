@@ -47,8 +47,8 @@ Input Video
     │                          │
     └──────────┬───────────────┘
                ▼
-     [Anomaly Score + Explanation Engine]
-     "Fighting detected — confidence 91%"
+    [Anomaly Score + Explanation Engine]
+     "Fighting detected — confidence 91%" 
                │
                ▼
      [FastAPI Backend] → [Streamlit Frontend]
